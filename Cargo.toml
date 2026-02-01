@@ -1,11 +1,15 @@
 [package]
-name = "moxie"
+name = "moxie-ai"
 version = "0.1.0"
 edition = "2021"
 authors = ["John Nguyen"]
 license = "MIT"
-description = "Moxie - Bold AI chatbot API for website integration"
+description = "Bold AI chatbot API for website integration - unified interface to Ollama, OpenAI, and Anthropic"
 repository = "https://github.com/johnhnguyen97/moxie"
+homepage = "https://github.com/johnhnguyen97/moxie"
+readme = "README.md"
+keywords = ["ai", "chatbot", "llm", "ollama", "api"]
+categories = ["web-programming", "api-bindings"]
 
 [dependencies]
 # Async runtime
