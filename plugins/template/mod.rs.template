@@ -1,0 +1,218 @@
+//! {{PLUGIN_NAME}} Plugin for Moxie AI
+//!
+//! {{PLUGIN_DESCRIPTION}}
+//!
+//! # Tools
+//!
+//! - `{{tool_name}}` - {{tool_description}}
+//!
+//! # Configuration
+//!
+//! ```toml
+//! [plugins.{{plugin_id}}]
+//! # Your configuration options here
+//! ```
+
+use async_trait::async_trait;
+use serde::{Deserialize, Serialize};
+use serde_json::{json, Value};
+use std::any::Any;
+
+// Import from moxie_ai::plugins::prelude for all plugin development needs
+use moxie_ai::plugins::prelude::*;
+
+// ============================================================================
+// Configuration
+// ============================================================================
+
+/// Configuration for {{PLUGIN_NAME}}
+#[derive(Debug, Clone, Serialize, Deserialize, Default)]
+pub struct {{PluginName}}Config {
+    // Add your configuration fields here
+    // Example:
+    // pub api_key: Option<String>,
+    // pub enabled_features: Vec<String>,
+}
+
+impl {{PluginName}}Config {
+    /// Parse configuration from a JSON Value
+    pub fn from_value(value: &Value) -> Result<Self, PluginError> {
+        if value.is_null() {
+            return Ok(Self::default());
+        }
+        serde_json::from_value(value.clone())
+            .map_err(|e| PluginError::ConfigError(e.to_string()))
+    }
+}
+
+// ============================================================================
+// Plugin Implementation
+// ============================================================================
+
+/// {{PLUGIN_NAME}} plugin
+pub struct {{PluginName}}Plugin {
+    config: {{PluginName}}Config,
+}
+
+impl {{PluginName}}Plugin {
+    /// Plugin ID - use reverse domain notation (e.g., "com.yourcompany.pluginname")
+    pub const ID: &'static str = "{{plugin_id}}";
+
+    /// Create a new plugin instance with the given configuration
+    pub fn new(config: {{PluginName}}Config) -> Self {
+        Self { config }
+    }
+
+    /// Create with default configuration
+    pub fn default_plugin() -> Self {
+        Self::new({{PluginName}}Config::default())
+    }
+
+    // ========================================================================
+    // Tool Implementations
+    // ========================================================================
+
+    /// Example tool implementation
+    async fn example_tool(&self, input: &str) -> Result<ToolResult, PluginError> {
+        // Your tool logic here
+        Ok(ToolResult::success(json!({
+            "result": format!("Processed: {}", input)
+        })))
+    }
+}
+
+// ============================================================================
+// Plugin Trait Implementation
+// ============================================================================
+
+#[async_trait]
+impl Plugin for {{PluginName}}Plugin {
+    /// Define your plugin's metadata
+    fn manifest(&self) -> PluginManifest {
+        PluginManifest::new(
+            Self::ID,
+            "{{PLUGIN_NAME}}",
+            "{{PLUGIN_DESCRIPTION}}",
+        )
+        .with_version(1, 0, 0)
+        .with_author("Your Name")
+        .with_category(PluginCategory::Custom)  // Choose appropriate category
+        .with_keywords(vec!["keyword1", "keyword2"])
+        // Define configuration schema for UI generation
+        .with_config_field(
+            ConfigFieldBuilder::new("example_field", ConfigFieldType::String)
+                .label("Example Field")
+                .description("An example configuration field")
+                .build(),
+        )
+    }
+
+    /// Define the tools this plugin provides
+    fn tools(&self) -> Vec<ToolDefinition> {
+        vec![
+            ToolDefinition::new("{{tool_name}}", "{{tool_description}}")
+                .with_parameters(json!({
+                    "type": "object",
+                    "properties": {
+                        "input": {
+                            "type": "string",
+                            "description": "The input to process"
+                        }
+                    },
+                    "required": ["input"]
+                }))
+                .from_plugin(Self::ID),
+        ]
+    }
+
+    /// Handle tool execution
+    async fn execute(&self, tool: &str, params: Value) -> Result<ToolResult, PluginError> {
+        match tool {
+            "{{tool_name}}" => {
+                let input = params["input"]
+                    .as_str()
+                    .ok_or_else(|| PluginError::InvalidParameters("input is required".into()))?;
+                self.example_tool(input).await
+            }
+            _ => Err(PluginError::ToolNotFound(tool.to_string())),
+        }
+    }
+
+    // ========================================================================
+    // Lifecycle Hooks (Optional - implement as needed)
+    // ========================================================================
+
+    /// Called when the plugin is initialized
+    async fn on_init(&mut self, ctx: &PluginContext) -> Result<(), PluginError> {
+        // Parse configuration from context
+        if !ctx.config.is_null() {
+            self.config = {{PluginName}}Config::from_value(&ctx.config)?;
+        }
+
+        // Initialize resources, connections, etc.
+        tracing::info!("{{PLUGIN_NAME}} plugin initialized");
+
+        Ok(())
+    }
+
+    /// Called when the plugin is shut down
+    async fn on_shutdown(&mut self) -> Result<(), PluginError> {
+        // Clean up resources, close connections, etc.
+        tracing::info!("{{PLUGIN_NAME}} plugin shut down");
+        Ok(())
+    }
+
+    /// Called before a tool is executed (for validation, logging, etc.)
+    async fn before_execute(&self, tool: &str, params: &Value) -> Result<(), PluginError> {
+        tracing::debug!("Executing tool: {} with params: {:?}", tool, params);
+        Ok(())
+    }
+
+    /// Called after a tool is executed (for logging, metrics, etc.)
+    async fn after_execute(&self, tool: &str, result: &ToolResult) -> Result<(), PluginError> {
+        tracing::debug!("Tool {} completed: success={}", tool, result.success);
+        Ok(())
+    }
+
+    // Required for downcasting
+    fn as_any(&self) -> &dyn Any {
+        self
+    }
+
+    fn as_any_mut(&mut self) -> &mut dyn Any {
+        self
+    }
+}
+
+// ============================================================================
+// Tests
+// ============================================================================
+
+#[cfg(test)]
+mod tests {
+    use super::*;
+
+    #[test]
+    fn test_manifest() {
+        let plugin = {{PluginName}}Plugin::default_plugin();
+        let manifest = plugin.manifest();
+
+        assert_eq!(manifest.id, {{PluginName}}Plugin::ID);
+        assert!(!manifest.config_schema.is_empty());
+    }
+
+    #[tokio::test]
+    async fn test_example_tool() {
+        let plugin = {{PluginName}}Plugin::default_plugin();
+
+        let result = plugin
+            .execute(
+                "{{tool_name}}",
+                json!({ "input": "test" }),
+            )
+            .await
+            .unwrap();
+
+        assert!(result.success);
+    }
+}

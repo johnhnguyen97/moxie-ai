@@ -1,8 +1,14 @@
 //! Application configuration
 
+pub mod client;
+pub mod prompts;
+
 use std::env;
 
 use serde::{Deserialize, Serialize};
+
+pub use client::ClientConfig;
+pub use prompts::{PromptManager, PromptTemplate, builtin as prompts_builtin};
 
 #[derive(Debug, Clone, Serialize, Deserialize)]
 pub struct Config {

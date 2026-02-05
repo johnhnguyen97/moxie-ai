@@ -1,0 +1,164 @@
+# Example API Plugin Configuration
+# Add your own APIs here - no code required!
+
+# ============================================================================
+# Example: Weather API
+# ============================================================================
+
+[[plugins.api.services]]
+id = "weather"
+name = "Weather Service"
+base_url = "https://api.openweathermap.org/data/2.5"
+auth_type = "query_param"
+auth_param = "appid"
+auth_env = "OPENWEATHERMAP_API_KEY"
+timeout_secs = 30
+
+[[plugins.api.services.endpoints]]
+name = "current"
+method = "GET"
+path = "/weather"
+description = "Get current weather for a city"
+
+[plugins.api.services.endpoints.params.q]
+type = "string"
+required = true
+description = "City name (e.g., 'London' or 'London,UK')"
+location = "query"
+
+[plugins.api.services.endpoints.params.units]
+type = "string"
+required = false
+description = "Units: standard, metric, or imperial"
+default = "metric"
+location = "query"
+
+# ============================================================================
+# Example: JSONPlaceholder (Free test API)
+# ============================================================================
+
+[[plugins.api.services]]
+id = "jsonplaceholder"
+name = "JSONPlaceholder Test API"
+base_url = "https://jsonplaceholder.typicode.com"
+auth_type = "none"
+
+[[plugins.api.services.endpoints]]
+name = "list_posts"
+method = "GET"
+path = "/posts"
+description = "List all posts"
+
+[[plugins.api.services.endpoints]]
+name = "get_post"
+method = "GET"
+path = "/posts/{id}"
+description = "Get a specific post by ID"
+
+[plugins.api.services.endpoints.params.id]
+type = "number"
+required = true
+description = "Post ID"
+location = "path"
+
+[[plugins.api.services.endpoints]]
+name = "create_post"
+method = "POST"
+path = "/posts"
+description = "Create a new post"
+requires_confirmation = true
+
+[plugins.api.services.endpoints.params.title]
+type = "string"
+required = true
+description = "Post title"
+location = "body"
+
+[plugins.api.services.endpoints.params.body]
+type = "string"
+required = true
+description = "Post content"
+location = "body"
+
+[plugins.api.services.endpoints.params.userId]
+type = "number"
+required = true
+description = "Author user ID"
+location = "body"
+
+[[plugins.api.services.endpoints]]
+name = "list_users"
+method = "GET"
+path = "/users"
+description = "List all users"
+
+[[plugins.api.services.endpoints]]
+name = "get_user"
+method = "GET"
+path = "/users/{id}"
+description = "Get user by ID"
+
+[plugins.api.services.endpoints.params.id]
+type = "number"
+required = true
+description = "User ID"
+location = "path"
+
+# ============================================================================
+# Example: Your Custom API
+# ============================================================================
+
+# [[plugins.api.services]]
+# id = "mycompany"
+# name = "My Company API"
+# base_url = "https://api.mycompany.com/v1"
+# auth_type = "bearer"  # Options: none, api_key, bearer, basic, query_param
+# auth_env = "MYCOMPANY_API_TOKEN"  # Environment variable with the token
+#
+# # Add default headers (optional)
+# [plugins.api.services.headers]
+# "X-Custom-Header" = "some-value"
+#
+# [[plugins.api.services.endpoints]]
+# name = "list_customers"
+# method = "GET"
+# path = "/customers"
+# description = "List all customers"
+#
+# [[plugins.api.services.endpoints]]
+# name = "get_customer"
+# method = "GET"
+# path = "/customers/{id}"
+# description = "Get a customer by ID"
+#
+# [plugins.api.services.endpoints.params.id]
+# type = "string"
+# required = true
+# description = "Customer ID"
+# location = "path"
+#
+# [[plugins.api.services.endpoints]]
+# name = "create_ticket"
+# method = "POST"
+# path = "/tickets"
+# description = "Create a support ticket"
+# requires_confirmation = true
+#
+# [plugins.api.services.endpoints.params.subject]
+# type = "string"
+# required = true
+# description = "Ticket subject"
+# location = "body"
+#
+# [plugins.api.services.endpoints.params.description]
+# type = "string"
+# required = true
+# description = "Ticket description"
+# location = "body"
+#
+# [plugins.api.services.endpoints.params.priority]
+# type = "string"
+# required = false
+# description = "Priority: low, medium, high"
+# default = "medium"
+# location = "body"

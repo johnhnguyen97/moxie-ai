@@ -1,0 +1,59 @@
+# Example Moxie Client Configuration
+# Copy this file and customize for each deployment
+
+[client]
+name = "ACME Corporation"
+industry = "manufacturing"  # Used for industry-specific templates
+# id = "unique-client-id"  # Optional: for dashboard tracking
+
+[llm]
+provider = "ollama"     # "ollama", "openai", "anthropic"
+model = "llama3.2"      # Provider-specific model name
+# api_key_env = "OPENAI_API_KEY"  # For cloud providers
+# endpoint = "http://localhost:11434"  # Custom endpoint
+
+[plugins]
+enabled = ["filesystem"]  # Plugins to load
+
+[plugins.filesystem]
+allowed_paths = [
+    "C:\\Data",
+    "D:\\Reports"
+]
+allow_write = false  # Read-only by default
+# cloud_providers = ["onedrive", "google_drive"]  # Future feature
+
+# [plugins.office]
+# excel_enabled = true
+# word_enabled = true
+# powerpoint_enabled = false
+# outlook_enabled = false
+
+# [plugins.database]
+# allowed_operations = ["read"]  # "read", "write"
+# [[plugins.database.connections]]
+# name = "production"
+# type = "postgres"  # "sqlite", "postgres", "mysql", "sqlserver"
+# connection_string_env = "PROD_DB_CONNECTION"
+
+# [knowledge]
+# enabled = false
+# [[knowledge.sources]]
+# path = "C:\\Docs\\Procedures"
+# type = "directory"
+# patterns = ["*.pdf", "*.docx", "*.md"]
+
+[security]
+require_confirmation_for = ["write_file", "sql_update"]
+log_tool_calls = true
+# audit_log_path = "C:\\Logs\\moxie_audit.log"
+# max_tokens_per_request = 4096
+
+[telemetry]
+enabled = false  # Set to true to enable dashboard metrics
+# dashboard_url = "https://dashboard.moxie.ai"
+# api_key_env = "MOXIE_DASHBOARD_KEY"
+send_metrics = true       # CPU, memory, uptime
+send_usage = true         # Conversation counts, token usage
+send_errors = true        # Sanitized error reports
+send_conversations = false  # NEVER send conversation content

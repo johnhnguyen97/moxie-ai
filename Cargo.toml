@@ -23,11 +23,18 @@ tower-http = { version = "0.5", features = ["cors", "trace"] }
 # Serialization
 serde = { version = "1", features = ["derive"] }
 serde_json = "1"
+toml = "0.8"
 
 # HTTP client for AI providers
 reqwest = { version = "0.12", features = ["json", "stream"] }
 async-stream = "0.3"
 futures = "0.3"
+
+# Database (SQLite for local storage)
+sqlx = { version = "0.8", features = ["runtime-tokio", "sqlite"] }
+
+# Async trait support
+async-trait = "0.1"
 
 # Utilities
 uuid = { version = "1", features = ["v4", "serde"] }

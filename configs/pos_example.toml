@@ -1,0 +1,320 @@
+# Example POS (Point of Sale) API Configuration
+# This shows how to connect Moxie to your POS system for sales analysis
+#
+# The AI can then answer questions like:
+# - "What were our top selling products last week?"
+# - "Show me today's sales summary"
+# - "Which items are low in stock?"
+# - "Compare this month's revenue to last month"
+
+# ============================================================================
+# Square POS Example
+# ============================================================================
+
+[[plugins.api.services]]
+id = "square"
+name = "Square POS"
+base_url = "https://connect.squareup.com/v2"
+auth_type = "bearer"
+auth_env = "SQUARE_ACCESS_TOKEN"
+timeout_secs = 30
+
+[plugins.api.services.headers]
+"Square-Version" = "2024-01-18"
+
+# --- Orders & Transactions ---
+
+[[plugins.api.services.endpoints]]
+name = "search_orders"
+method = "POST"
+path = "/orders/search"
+description = "Search orders by date range, status, or customer. Use this to analyze sales data."
+
+[plugins.api.services.endpoints.params.location_ids]
+type = "array"
+required = true
+description = "Location IDs to search (get from list_locations)"
+location = "body"
+
+[plugins.api.services.endpoints.params.query]
+type = "object"
+required = false
+description = "Search query with filters (date_time_filter, state_filter, customer_filter)"
+location = "body"
+
+[[plugins.api.services.endpoints]]
+name = "get_order"
+method = "GET"
+path = "/orders/{order_id}"
+description = "Get details of a specific order including line items and payments"
+
+[plugins.api.services.endpoints.params.order_id]
+type = "string"
+required = true
+description = "Order ID"
+location = "path"
+
+# --- Inventory ---
+
+[[plugins.api.services.endpoints]]
+name = "get_inventory_counts"
+method = "POST"
+path = "/inventory/counts/batch-retrieve"
+description = "Get current inventory counts for items. Use this to check stock levels."
+
+[plugins.api.services.endpoints.params.catalog_object_ids]
+type = "array"
+required = false
+description = "Item variation IDs to check (leave empty for all)"
+location = "body"
+
+[plugins.api.services.endpoints.params.location_ids]
+type = "array"
+required = false
+description = "Location IDs to check"
+location = "body"
+
+[[plugins.api.services.endpoints]]
+name = "get_inventory_changes"
+method = "POST"
+path = "/inventory/changes/batch-retrieve"
+description = "Get inventory changes (sales, adjustments, transfers) over time"
+
+[plugins.api.services.endpoints.params.catalog_object_ids]
+type = "array"
+required = false
+description = "Item IDs to track"
+location = "body"
+
+[plugins.api.services.endpoints.params.location_ids]
+type = "array"
+required = false
+description = "Location IDs"
+location = "body"
+
+[plugins.api.services.endpoints.params.types]
+type = "array"
+required = false
+description = "Change types: PHYSICAL_COUNT, ADJUSTMENT, TRANSFER, SALE"
+location = "body"
+
+# --- Catalog (Products) ---
+
+[[plugins.api.services.endpoints]]
+name = "list_catalog"
+method = "GET"
+path = "/catalog/list"
+description = "List all products, categories, and variations in the catalog"
+
+[plugins.api.services.endpoints.params.types]
+type = "string"
+required = false
+description = "Filter by type: ITEM, CATEGORY, DISCOUNT, TAX, MODIFIER"
+location = "query"
+
+[[plugins.api.services.endpoints]]
+name = "search_catalog"
+method = "POST"
+path = "/catalog/search"
+description = "Search catalog by name, category, or custom attributes"
+
+[plugins.api.services.endpoints.params.object_types]
+type = "array"
+required = false
+description = "Types to search: ITEM, CATEGORY, etc."
+location = "body"
+
+[plugins.api.services.endpoints.params.query]
+type = "object"
+required = false
+description = "Search query with text_query, exact_query, or prefix_query"
+location = "body"
+
+# --- Customers ---
+
+[[plugins.api.services.endpoints]]
+name = "list_customers"
+method = "GET"
+path = "/customers"
+description = "List all customers"
+
+[plugins.api.services.endpoints.params.limit]
+type = "number"
+required = false
+description = "Max results (default 100)"
+location = "query"
+
+[[plugins.api.services.endpoints]]
+name = "search_customers"
+method = "POST"
+path = "/customers/search"
+description = "Search customers by name, email, phone, or purchase history"
+
+[plugins.api.services.endpoints.params.query]
+type = "object"
+required = false
+description = "Search filters"
+location = "body"
+
+# --- Locations ---
+
+[[plugins.api.services.endpoints]]
+name = "list_locations"
+method = "GET"
+path = "/locations"
+description = "List all business locations. Call this first to get location IDs for other queries."
+
+# --- Payments ---
+
+[[plugins.api.services.endpoints]]
+name = "list_payments"
+method = "GET"
+path = "/payments"
+description = "List payments with optional date filtering"
+
+[plugins.api.services.endpoints.params.begin_time]
+type = "string"
+required = false
+description = "Start time (RFC 3339 format)"
+location = "query"
+
+[plugins.api.services.endpoints.params.end_time]
+type = "string"
+required = false
+description = "End time (RFC 3339 format)"
+location = "query"
+
+[plugins.api.services.endpoints.params.location_id]
+type = "string"
+required = false
+description = "Filter by location"
+location = "query"
+
+# ============================================================================
+# Generic POS Example (for custom/self-hosted POS systems)
+# ============================================================================
+
+# [[plugins.api.services]]
+# id = "mypos"
+# name = "My POS System"
+# base_url = "https://pos.mycompany.com/api/v1"
+# auth_type = "api_key"
+# auth_header = "X-API-Key"
+# auth_env = "MYPOS_API_KEY"
+#
+# [[plugins.api.services.endpoints]]
+# name = "daily_summary"
+# method = "GET"
+# path = "/reports/daily"
+# description = "Get daily sales summary with totals, transaction count, and top items"
+#
+# [plugins.api.services.endpoints.params.date]
+# type = "string"
+# required = false
+# description = "Date in YYYY-MM-DD format (default: today)"
+# location = "query"
+#
+# [[plugins.api.services.endpoints]]
+# name = "sales_by_category"
+# method = "GET"
+# path = "/reports/by-category"
+# description = "Get sales breakdown by product category"
+#
+# [plugins.api.services.endpoints.params.start_date]
+# type = "string"
+# required = true
+# description = "Start date (YYYY-MM-DD)"
+# location = "query"
+#
+# [plugins.api.services.endpoints.params.end_date]
+# type = "string"
+# required = true
+# description = "End date (YYYY-MM-DD)"
+# location = "query"
+#
+# [[plugins.api.services.endpoints]]
+# name = "low_stock_items"
+# method = "GET"
+# path = "/inventory/low-stock"
+# description = "Get items that are below minimum stock threshold"
+#
+# [plugins.api.services.endpoints.params.threshold]
+# type = "number"
+# required = false
+# description = "Custom threshold (default: use item's min_stock setting)"
+# location = "query"
+#
+# [[plugins.api.services.endpoints]]
+# name = "top_selling"
+# method = "GET"
+# path = "/reports/top-selling"
+# description = "Get top selling products by revenue or quantity"
+#
+# [plugins.api.services.endpoints.params.metric]
+# type = "string"
+# required = false
+# description = "Sort by: revenue, quantity, profit"
+# default = "revenue"
+# location = "query"
+#
+# [plugins.api.services.endpoints.params.limit]
+# type = "number"
+# required = false
+# description = "Number of items to return"
+# default = "10"
+# location = "query"
+#
+# [plugins.api.services.endpoints.params.period]
+# type = "string"
+# required = false
+# description = "Time period: today, week, month, year"
+# default = "week"
+# location = "query"
+
+# ============================================================================
+# Shopify POS Example
+# ============================================================================
+
+# [[plugins.api.services]]
+# id = "shopify"
+# name = "Shopify"
+# base_url = "https://your-store.myshopify.com/admin/api/2024-01"
+# auth_type = "api_key"
+# auth_header = "X-Shopify-Access-Token"
+# auth_env = "SHOPIFY_ACCESS_TOKEN"
+#
+# [[plugins.api.services.endpoints]]
+# name = "list_orders"
+# method = "GET"
+# path = "/orders.json"
+# description = "List orders with filtering options"
+#
+# [plugins.api.services.endpoints.params.status]
+# type = "string"
+# required = false
+# description = "Filter by status: open, closed, cancelled, any"
+# location = "query"
+#
+# [plugins.api.services.endpoints.params.created_at_min]
+# type = "string"
+# required = false
+# description = "Show orders created after date (ISO 8601)"
+# location = "query"
+#
+# [[plugins.api.services.endpoints]]
+# name = "list_products"
+# method = "GET"
+# path = "/products.json"
+# description = "List all products"
+#
+# [[plugins.api.services.endpoints]]
+# name = "get_inventory_levels"
+# method = "GET"
+# path = "/inventory_levels.json"
+# description = "Get inventory levels across locations"
+#
+# [plugins.api.services.endpoints.params.inventory_item_ids]
+# type = "string"
+# required = false
+# description = "Comma-separated inventory item IDs"
+# location = "query"
